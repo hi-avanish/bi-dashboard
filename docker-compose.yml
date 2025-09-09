@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dedalus-dashboard:
+    image: dedalus-tooling-dashboard:latest
+    build: .
+    ports:
+      - "8050:8050"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SECRET_KEY=dedalus-production-secret-2024
+      - HOST=0.0.0.0
+      - PORT=8050
+      - DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8050/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
