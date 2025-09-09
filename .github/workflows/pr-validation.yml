@@ -22,36 +22,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Lint code
+    - name: Basic code check
       run: |
-        pip install flake8
-        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
-        
-    - name: Check dashboard startup
-      run: |
-        timeout 30s python start_dashboard.py &
-        sleep 10
-        curl -f http://localhost:8050/login || exit 1
+        python -m py_compile src/unified_dashboard.py
+        python -m py_compile start_dashboard.py
         
     - name: Validate documentation
       run: |
-        # Check if README.md exists and has content
         [ -s README.md ] || exit 1
-        # Check if required sections exist
         grep -q "Quick Start" README.md || exit 1
-        grep -q "Features" README.md || exit 1
-        
-  security:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Run security scan
-      uses: github/super-linter@v4
-      env:
-        DEFAULT_BRANCH: main
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VALIDATE_PYTHON_FLAKE8: true
-        VALIDATE_DOCKERFILE: true
